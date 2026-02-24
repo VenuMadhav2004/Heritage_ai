@@ -29,7 +29,6 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 # DATABASE — create tables on import
 # ============================================================================
-init_database()
 
 # ============================================================================
 # FASTAPI APP
@@ -42,6 +41,13 @@ app = FastAPI(
     redoc_url="/redoc",
     openapi_url="/openapi.json",
 )
+@app.on_event("startup")
+async def on_startup():
+    init_database()   # 🔥 THIS IS IMPORTANT
+
+    logger.info("=" * 70)
+    logger.info(f"🚀  {PROJECT_NAME}  v{VERSION}")
+
 
 # ============================================================================
 # MIDDLEWARE — CORS
@@ -70,6 +76,10 @@ app.include_router(tts_routes.router,       prefix=API_PREFIX)
 # AI Chat Routes
 from routes import ai_routes
 app.include_router(ai_routes.router,        prefix=API_PREFIX)
+
+# Auth Routes
+from routes import auth_routes
+app.include_router(auth_routes.router,      prefix=API_PREFIX)
 
 # ============================================================================
 # ROOT ENDPOINTS
@@ -172,7 +182,7 @@ async def on_startup():
     # AI status
     ai = check_ai_status()
     if ai["ai_enabled"]:
-        logger.info(f"✅  AI Service ready  ({ai.get('model', 'Unknown')})")
+        logger.info(f"✅  AI Service ready  ({ai['model']})")
     else:
         logger.warning("⚠️   AI Service disabled — set GEMINI_API_KEY in .env")
 

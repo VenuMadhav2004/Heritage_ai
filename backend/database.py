@@ -86,6 +86,9 @@ def init_database() -> None:
     Called on application startup.
     """
     try:
+        from models.user import User
+        from models.heritage import Heritage
+        from models.ai_content import AIGeneratedContent
         Base.metadata.create_all(bind=engine)
         logger.info("✅ Database tables created successfully")
     except Exception as e:

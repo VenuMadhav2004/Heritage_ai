@@ -1,118 +1,215 @@
-// components/dashboard/PremiumHero.jsx
-import { useEffect, useState } from "react";
+// components/dashboard/PremiumHero.jsx — Horizontal Scrolling Sections
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatedButton } from "../ui/index.jsx";
 
-const ROTATING_WORDS = ["Heritage", "History", "Dynasties", "Architecture", "Temples"];
+const SECTIONS = [
+  {
+    id: 1,
+    title: "Discover the",
+    highlight: "Heritage",
+    subtitle: "of Tamil Nadu",
+    description: "Explore 80 monumental heritage sites spanning millennia — from Chola temples to colonial forts.",
+    cta1: { label: "Explore Map", icon: "🗺", link: "/map" },
+    cta2: { label: "Ask AI", icon: "✦", link: "/ai" },
+  },
+  {
+    id: 2,
+    title: "Experience the",
+    highlight: "History",
+    subtitle: "through AI",
+    description: "AI-guided tours with voice narration in 11 languages. Ask questions, generate stories, explore dynasties.",
+    cta1: { label: "AI Explorer", icon: "✦", link: "/ai" },
+    cta2: { label: "View Stories", icon: "📖", link: "/stories" },
+  },
+  {
+    id: 3,
+    title: "Explore",
+    highlight: "Dynasties",
+    subtitle: "& Architecture",
+    description: "Chola, Pallava, Pandya, Nayak — discover the architectural marvels across 4 UNESCO World Heritage Sites.",
+    cta1: { label: "View Map", icon: "🗺", link: "/map" },
+    cta2: { label: "Learn More", icon: "◈", link: "/heritage/1" },
+  },
+];
 
-export function PremiumHero({ totalSites = 49, unescoCount = 4 }) {
+export function PremiumHero({ totalSites = 80, unescoCount = 4, districts = 22, languages = 11 }) {
   const navigate = useNavigate();
-  const [wordIdx, setWordIdx] = useState(0);
-  const [visible, setVisible] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const containerRef = useRef(null);
 
+  // Auto-scroll every 8 seconds (slow)
   useEffect(() => {
-    const iv = setInterval(() => {
-      setVisible(false);
-      setTimeout(() => {
-        setWordIdx((i) => (i + 1) % ROTATING_WORDS.length);
-        setVisible(true);
-      }, 300);
-    }, 2800);
-    return () => clearInterval(iv);
-  }, []);
+    if (isPaused) return;
+    
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % SECTIONS.length);
+    }, 8000);
+
+    return () => clearInterval(timer);
+  }, [isPaused]);
+
+  // Smooth scroll to section
+  useEffect(() => {
+    if (containerRef.current) {
+      const container = containerRef.current;
+      const sectionWidth = container.offsetWidth;
+      container.scrollTo({
+        left: currentIndex * sectionWidth,
+        behavior: "smooth",
+      });
+    }
+  }, [currentIndex]);
+
+  const goToPrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + SECTIONS.length) % SECTIONS.length);
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % SECTIONS.length);
+  };
+
+  const currentSection = SECTIONS[currentIndex];
 
   return (
-    <section className="relative min-h-[520px] flex items-center overflow-hidden rounded-3xl mx-6 mt-6">
+    <section 
+      className="relative h-screen overflow-hidden"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-stone-dark via-[#1A160F] to-stone-dark" />
+      <div className="absolute inset-0 dot-grid opacity-30" />
+      
+      {/* Decorative elements */}
+      <div className="absolute top-1/4 right-1/4 w-96 h-96 rounded-full opacity-8 animate-float bg-gradient-radial from-gold/20 via-transparent to-transparent blur-3xl" />
+      <div className="absolute bottom-1/4 left-1/4 w-80 h-80 rounded-full opacity-6 animate-float bg-gradient-radial from-ember/15 via-transparent to-transparent blur-3xl" style={{ animationDelay: "2s" }} />
 
-      {/* ── Layered background ──────────────────────────────────────────── */}
-      <div className="absolute inset-0 bg-hero-mesh" />
-      <div className="absolute inset-0 dot-grid opacity-40" />
+      {/* Left Arrow */}
+      <button
+        onClick={goToPrev}
+        className="absolute left-8 top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full glass-dark border border-gold/30 flex items-center justify-center hover:bg-gold/20 hover:border-gold/60 transition-all group"
+      >
+        <span className="text-gold text-2xl group-hover:scale-125 transition-transform">←</span>
+      </button>
 
-      {/* Decorative orbs */}
-      <div className="absolute top-12 right-24 w-64 h-64 rounded-full opacity-10 animate-float"
-           style={{ background: "radial-gradient(circle, #C9A84C, transparent 70%)" }} />
-      <div className="absolute bottom-0 left-1/2 w-96 h-40 opacity-8"
-           style={{ background: "radial-gradient(ellipse, #C4622D40, transparent 70%)" }} />
-      <div className="absolute top-0 left-0 w-48 h-48 rounded-full opacity-5 animate-float"
-           style={{ animationDelay: "2s", background: "radial-gradient(circle, #2D7A5F, transparent 70%)" }} />
+      {/* Right Arrow */}
+      <button
+        onClick={goToNext}
+        className="absolute right-8 top-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full glass-dark border border-gold/30 flex items-center justify-center hover:bg-gold/20 hover:border-gold/60 transition-all group"
+      >
+        <span className="text-gold text-2xl group-hover:scale-125 transition-transform">→</span>
+      </button>
 
-      {/* Geometric decorations */}
-      <div className="absolute top-8 right-8 w-32 h-32 border border-gold/10 rounded-2xl rotate-12" />
-      <div className="absolute top-12 right-12 w-24 h-24 border border-gold/5 rounded-xl rotate-6" />
-      <div className="absolute bottom-8 right-40 w-2 h-2 rounded-full bg-gold/40 animate-pulse" />
-      <div className="absolute top-20 left-1/2 w-1.5 h-1.5 rounded-full bg-gold/30 animate-pulse" style={{ animationDelay: "1s" }} />
-
-      {/* ── Content ─────────────────────────────────────────────────────── */}
-      <div className="relative z-10 px-12 py-16 max-w-3xl">
-
-        {/* Eyebrow */}
-        <div className="flex items-center gap-3 mb-6 animate-fade-in">
-          <div className="h-px w-8 bg-gold/60" />
-          <span className="text-gold/80 text-xs font-mono tracking-[0.25em] uppercase">
-            Tamil Nadu · India
-          </span>
-          <div className="h-px w-8 bg-gold/60" />
-        </div>
-
-        {/* Headline */}
-        <h1 className="font-display font-light leading-[1.05] mb-6">
-          <span className="text-cream text-5xl md:text-6xl block animate-fade-up">Discover the</span>
-          <span
-            className="text-shimmer text-5xl md:text-7xl block transition-all duration-300"
-            style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(8px)" }}
+      {/* Content Container */}
+      <div 
+        ref={containerRef}
+        className="relative z-10 h-full flex overflow-x-hidden scroll-smooth"
+      >
+        {SECTIONS.map((section, idx) => (
+          <div
+            key={section.id}
+            className="min-w-full h-full flex items-center justify-center px-8"
           >
-            {ROTATING_WORDS[wordIdx]}
-          </span>
-          <span className="text-cream/60 text-4xl md:text-5xl block animate-fade-up stagger-3 italic">
-            of Tamil Nadu
-          </span>
-        </h1>
+            <div className="text-center max-w-5xl animate-fade-in">
+              
+              {/* Eyebrow */}
+              <div className="flex items-center justify-center gap-3 mb-8">
+                <div className="h-px w-12 bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
+                <span className="text-gold/80 text-sm font-mono tracking-[0.3em] uppercase">
+                  Tamil Nadu · India
+                </span>
+                <div className="h-px w-12 bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
+              </div>
 
-        {/* Sub */}
-        <p className="text-cream/50 text-base leading-relaxed max-w-lg mb-10 animate-fade-up stagger-4">
-          Explore {totalSites} monumental heritage sites spanning millennia —
-          from Chola temples to colonial forts. AI-guided, voice-narrated,
-          across {unescoCount} UNESCO World Heritage Sites.
-        </p>
+              {/* Headline */}
+              <h1 className="font-display font-light leading-[1.1] mb-10">
+                <span className="text-cream text-5xl md:text-6xl lg:text-7xl block mb-2">
+                  {section.title}
+                </span>
+                <span className="text-shimmer text-6xl md:text-8xl lg:text-9xl block mb-2 font-bold">
+                  {section.highlight}
+                </span>
+                <span className="text-cream/60 text-4xl md:text-5xl lg:text-6xl block italic font-serif">
+                  {section.subtitle}
+                </span>
+              </h1>
 
-        {/* CTAs */}
-        <div className="flex items-center gap-4 animate-fade-up stagger-5">
-          <AnimatedButton variant="gold" size="lg" onClick={() => navigate("/map")}>
-            <span>◈</span> Explore Map
-          </AnimatedButton>
-          <AnimatedButton variant="ghost" size="lg" onClick={() => navigate("/ai")}>
-            <span>✦</span> Ask AI
-          </AnimatedButton>
-        </div>
+              {/* Description */}
+              <p className="text-cream/50 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-12">
+                {section.description}
+              </p>
 
-        {/* Quick stats row */}
-        <div className="flex items-center gap-8 mt-12 animate-fade-up stagger-6">
-          {[
-            { val: totalSites, label: "Heritage Sites" },
-            { val: unescoCount,   label: "UNESCO Sites" },
-            { val: "22+",     label: "Districts" },
-            { val: "11",      label: "Languages" },
-          ].map((s) => (
-            <div key={s.label} className="flex flex-col">
-              <span className="font-display text-gold text-2xl font-semibold">{s.val}</span>
-              <span className="text-cream/35 text-xs tracking-wide">{s.label}</span>
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
+                <AnimatedButton 
+                  variant="gold" 
+                  size="lg" 
+                  onClick={() => navigate(section.cta1.link)}
+                  className="text-base px-8 py-4"
+                >
+                  <span className="mr-2">{section.cta1.icon}</span>
+                  {section.cta1.label}
+                </AnimatedButton>
+                <AnimatedButton 
+                  variant="ghost" 
+                  size="lg" 
+                  onClick={() => navigate(section.cta2.link)}
+                  className="text-base px-8 py-4"
+                >
+                  <span className="mr-2">{section.cta2.icon}</span>
+                  {section.cta2.label}
+                </AnimatedButton>
+              </div>
+
+              {/* Stats (only on first section) */}
+              {idx === 0 && (
+                <div className="flex items-center justify-center gap-6">
+                  <div className="glass-dark rounded-xl px-6 py-4 border border-gold/10">
+                    <div className="font-display text-4xl text-gold mb-1">{totalSites}</div>
+                    <div className="text-cream/50 text-xs">Heritage Sites</div>
+                  </div>
+                  <div className="glass-dark rounded-xl px-6 py-4 border border-gold/10">
+                    <div className="font-display text-4xl text-ember mb-1">{unescoCount}</div>
+                    <div className="text-cream/50 text-xs">UNESCO Sites</div>
+                  </div>
+                  <div className="glass-dark rounded-xl px-6 py-4 border border-gold/10">
+                    <div className="font-display text-4xl text-jade mb-1">{districts}+</div>
+                    <div className="text-cream/50 text-xs">Districts</div>
+                  </div>
+                  <div className="glass-dark rounded-xl px-6 py-4 border border-gold/10">
+                    <div className="font-display text-4xl text-gold mb-1">{languages}</div>
+                    <div className="text-cream/50 text-xs">Languages</div>
+                  </div>
+                </div>
+              )}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
-      {/* ── Right decorative panel ───────────────────────────────────────── */}
-      <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-3">
-        {["Temple", "Fort", "Palace", "Monument"].map((cat, i) => (
+      {/* Progress Dots */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+        {SECTIONS.map((_, idx) => (
           <button
-            key={cat}
-            onClick={() => navigate(`/map?category=${cat}`)}
-            className="glass px-4 py-2.5 rounded-xl text-xs text-cream/50 hover:text-gold hover:border-gold/30 transition-all duration-300 text-left min-w-[110px] animate-slide-left"
-            style={{ animationDelay: `${i * 0.1 + 0.3}s` }}
-          >
-            <span className="text-gold/40 mr-2">›</span>{cat}
-          </button>
+            key={idx}
+            onClick={() => setCurrentIndex(idx)}
+            className={`transition-all duration-300 rounded-full ${
+              idx === currentIndex
+                ? "w-8 h-2 bg-gold"
+                : "w-2 h-2 bg-gold/30 hover:bg-gold/50"
+            }`}
+          />
         ))}
+      </div>
+
+      {/* Section counter */}
+      <div className="absolute top-8 right-8 glass-dark rounded-lg px-4 py-2 border border-gold/20 z-20">
+        <span className="text-gold font-mono text-sm">
+          {currentIndex + 1} / {SECTIONS.length}
+        </span>
       </div>
 
     </section>

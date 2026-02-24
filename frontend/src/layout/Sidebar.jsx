@@ -1,5 +1,6 @@
 // layout/Sidebar.jsx
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { signOut } from "../services/firebase.js";
 
 const NAV = [
   { to: "/",         icon: "⬡", label: "Dashboard",   sub: "Overview" },
@@ -9,7 +10,7 @@ const NAV = [
   { to: "/profile",  icon: "◎", label: "Profile",      sub: "Your Space" },
 ];
 
-export function Sidebar() {
+export function Sidebar({ onClose }) {
   const location = useLocation();
 
   return (
@@ -22,6 +23,16 @@ export function Sidebar() {
       <div className="absolute inset-0 dot-grid opacity-30" />
 
       <div className="relative flex flex-col h-full px-4 py-6 gap-6">
+
+        {/* Mobile Close Button */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 lg:hidden w-8 h-8 rounded-lg glass flex items-center justify-center hover:bg-gold/10"
+          >
+            <span className="text-cream/60">✕</span>
+          </button>
+        )}
 
         {/* Logo */}
         <div className="flex flex-col items-start gap-1 px-2 mb-2">
@@ -80,6 +91,23 @@ export function Sidebar() {
             );
           })}
         </nav>
+
+        {/* Logout Button */}
+        <button
+          onClick={async () => {
+            const result = await signOut();
+            if (result.success) {
+              window.location.href = "/auth";
+            }
+          }}
+          className="flex items-center gap-3 px-3 py-3 rounded-xl border border-ember/30 bg-ember/10 hover:bg-ember/20 text-ember transition-all"
+        >
+          <span className="text-lg">🚪</span>
+          <div className="flex flex-col items-start">
+            <span className="text-sm font-medium">Logout</span>
+            <span className="text-[10px] opacity-60">Sign out</span>
+          </div>
+        </button>
 
         {/* Bottom info */}
         <div className="glass rounded-xl p-3 flex flex-col gap-1">

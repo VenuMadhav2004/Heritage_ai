@@ -1,66 +1,81 @@
-// layout/TopNavbar.jsx
+// layout/TopNavbar.jsx — Responsive with Mobile Menu
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { AnimatedButton } from "../components/ui/index.jsx";
 
-export function TopNavbar({ title = "Dashboard" }) {
-  const [query, setQuery] = useState("");
-  const navigate = useNavigate();
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (query.trim()) navigate(`/ai?q=${encodeURIComponent(query.trim())}`);
-  };
+export function TopNavbar({ title, onMenuClick }) {
+  const [searchValue, setSearchValue] = useState("");
 
   return (
-    <header
-      className="fixed top-0 right-0 z-30 flex items-center justify-between px-6"
+    <nav
+      className="fixed top-0 z-30 bg-stone-dark/95 backdrop-blur-xl border-b border-gold/10"
       style={{
-        left: "var(--sidebar-w)",
+        left: 0,
+        right: 0,
         height: "var(--navbar-h)",
-        background: "linear-gradient(180deg, rgba(26,22,15,0.95) 0%, rgba(26,22,15,0.0) 100%)",
-        backdropFilter: "blur(12px)",
       }}
     >
-      {/* Page title */}
-      <div className="flex flex-col">
-        <h1 className="font-display text-xl text-cream/90 leading-none">{title}</h1>
-        <div className="w-8 h-px bg-gold/40 mt-1" />
-      </div>
+      <div className="h-full flex items-center justify-between gap-4 px-4 md:px-6">
+        
+        {/* Left: Menu Button (Mobile) + Title */}
+        <div className="flex items-center gap-3 md:gap-4">
+          {/* Mobile Menu Button */}
+          <button
+            onClick={onMenuClick}
+            className="lg:hidden w-10 h-10 rounded-lg glass flex items-center justify-center hover:bg-gold/10 transition-all"
+          >
+            <span className="text-gold text-xl">☰</span>
+          </button>
 
-      {/* Search bar */}
-      <form onSubmit={handleSearch} className="flex-1 max-w-md mx-8">
-        <div className="relative">
-          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gold/40 text-sm">⌕</span>
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search monuments, dynasties, districts…"
-            className="
-              w-full pl-9 pr-4 py-2 rounded-xl
-              bg-stone-light/40 border border-gold/15
-              text-cream/80 text-sm placeholder:text-cream/25
-              focus:outline-none focus:border-gold/40 focus:bg-stone-light/60
-              transition-all duration-300
-            "
-          />
+          {/* Page Title */}
+          <h1 className="font-display text-lg md:text-xl text-cream truncate">
+            {title}
+          </h1>
         </div>
-      </form>
 
-      {/* Right actions */}
-      <div className="flex items-center gap-3">
-        <AnimatedButton variant="ghost" size="sm" onClick={() => navigate("/ai")}>
-          <span>✦</span> AI Explorer
-        </AnimatedButton>
-        <button
-          onClick={() => navigate("/profile")}
-          className="w-9 h-9 rounded-xl glass border border-gold/20 flex items-center justify-center text-gold/60 hover:text-gold hover:border-gold/40 transition-all"
-        >
-          ◎
-        </button>
+        {/* Center: Search Bar (Hidden on small mobile) */}
+        <div className="hidden sm:flex flex-1 max-w-md">
+          <div className="relative w-full">
+            <input
+              type="text"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Search monuments, dynasties, districts..."
+              className="
+                w-full px-4 py-2 pl-10 rounded-xl text-sm
+                bg-stone-light/40 border border-gold/10
+                text-cream placeholder:text-cream/30
+                focus:outline-none focus:border-gold/40 focus:bg-stone-light/60
+                transition-all
+              "
+            />
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gold/40">
+              🔍
+            </span>
+          </div>
+        </div>
+
+        {/* Right: Action Buttons */}
+        <div className="flex items-center gap-2 md:gap-3">
+          {/* AI Explorer Button */}
+          <button
+            onClick={() => window.location.href = "/ai"}
+            className="
+              flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl
+              bg-gold/10 border border-gold/30
+              hover:bg-gold/20 hover:border-gold/50
+              transition-all text-gold text-sm
+            "
+          >
+            <span className="text-base">✦</span>
+            <span className="hidden md:inline">AI Explorer</span>
+          </button>
+
+          {/* Settings (Mobile: Icon only) */}
+          <button className="w-10 h-10 rounded-lg glass flex items-center justify-center hover:bg-gold/10 transition-all">
+            <span className="text-cream/60">⚙</span>
+          </button>
+        </div>
       </div>
-    </header>
+    </nav>
   );
 }
 
