@@ -1,4 +1,4 @@
-// pages/Profile.jsx — Dynamic User Profile with Notes & Editing
+// pages/Profile.jsx — Dynamic User Profile with Notes & Editing (No Photo)
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainLayout } from "../layout/MainLayout.jsx";
@@ -128,7 +128,6 @@ export function Profile() {
     phone: "",
     location: "",
     bio: "",
-    photoURL: "",
   });
   const [editedProfile, setEditedProfile] = useState({});
 
@@ -143,7 +142,6 @@ export function Profile() {
   }, []);
 
   const loadUserData = () => {
-    // Get Firebase user
     const firebaseUser = getCurrentUser();
     const localProfile = JSON.parse(localStorage.getItem(STORAGE.PROFILE) || "{}");
     
@@ -154,7 +152,6 @@ export function Profile() {
         phone: localProfile.phone || "",
         location: localProfile.location || "Tamil Nadu, India",
         bio: localProfile.bio || "Exploring the rich cultural heritage of Tamil Nadu",
-        photoURL: firebaseUser.photoURL || "",
       });
     } else {
       setProfile({
@@ -163,7 +160,6 @@ export function Profile() {
         phone: localProfile.phone || "",
         location: localProfile.location || "Tamil Nadu, India",
         bio: localProfile.bio || "Exploring the rich cultural heritage",
-        photoURL: "",
       });
     }
   };
@@ -270,23 +266,9 @@ export function Profile() {
     <MainLayout title="My Profile">
       <div className="max-w-6xl mx-auto p-6 space-y-6">
 
-        {/* Header - Editable */}
+        {/* Header - Editable (No Photo) */}
         <div className="glass-dark rounded-3xl p-8">
           <div className="flex items-start gap-6">
-            {/* Profile Photo */}
-            <div className="relative">
-              {profile.photoURL ? (
-                <img
-                  src={profile.photoURL}
-                  alt={profile.name}
-                  className="w-24 h-24 rounded-2xl border-2 border-gold/30 object-cover"
-                />
-              ) : (
-                <div className="w-24 h-24 rounded-2xl bg-gold/15 border-2 border-gold/30 flex items-center justify-center">
-                  <span className="text-5xl">{profile.name.charAt(0).toUpperCase()}</span>
-                </div>
-              )}
-            </div>
 
             {/* Profile Info */}
             <div className="flex-1">
