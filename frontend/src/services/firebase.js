@@ -9,7 +9,7 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged
 } from "firebase/auth";
-
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 // Firebase configuration
 // Get these from: https://console.firebase.google.com
 // Project Settings > General > Your apps > Web app
@@ -40,7 +40,7 @@ export const registerWithEmail = async (email, password, displayName) => {
     const user = userCredential.user;
     
     // Send to backend
-    const response = await fetch("http://localhost:8000/api/v1/auth/firebase/login", {
+    const response = await fetch(`${API_URL}/auth/firebase/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -73,7 +73,7 @@ export const loginWithEmail = async (email, password) => {
     const user = userCredential.user;
     
     // Send to backend
-    const response = await fetch("http://localhost:8000/api/v1/auth/firebase/login", {
+    const response = await fetch(`${API_URL}/auth/firebase/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -105,7 +105,7 @@ export const loginWithGoogle = async () => {
     const user = result.user;
     
     // Send to backend
-    const response = await fetch("http://localhost:8000/api/v1/auth/firebase/login", {
+    const response = await fetch(`${API_URL}/auth/firebase/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
