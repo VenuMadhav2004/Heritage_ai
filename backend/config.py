@@ -48,15 +48,10 @@ DATABASE_URL = os.getenv(
 # ============================================================================
 # CORS
 # ============================================================================
-CORS_ORIGINS: List[str] = [
-    "http://localhost:3000",    # React CRA
-    "http://localhost:5173",    # Vite
-    "http://localhost:8080",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:8080",
-    "https://heritage-ai.vercel.app",  # Deployed frontend
-]
+CORS_ORIGINS: List[str] = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173"
+).split(",")
 
 # ============================================================================
 # STATIC FILE URL HELPERS
