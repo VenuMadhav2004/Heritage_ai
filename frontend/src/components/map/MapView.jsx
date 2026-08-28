@@ -94,10 +94,12 @@ export function MapView({ filters, onMarkerClick }) {
       scrollWheelZoom: true,
     });
 
-    // Dark tile layer
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      attribution: '© OpenStreetMap contributors',
-      maxZoom: 18,
+    // Base tiles — OpenStreetMap (free, no API key required).
+    // CSS filter darkens them to match the site's theme.
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+      className: "map-tiles-dark",
     }).addTo(map);
 
     mapInstance.current = map;
@@ -167,32 +169,31 @@ export function MapView({ filters, onMarkerClick }) {
     // Fit bounds if markers exist
     const layers = markersLayer.current.getLayers();
 
-if (layers.length > 0) {
-  const bounds = L.featureGroup(layers).getBounds();
-  mapInstance.current.fitBounds(bounds, { padding: [50, 50], maxZoom: 10 });
-}
+    if (layers.length > 0) {
+      const bounds = L.featureGroup(layers).getBounds();
+      mapInstance.current.fitBounds(bounds, { padding: [50, 50], maxZoom: 10 });
+    }
   }, [sites, filters, loading, onMarkerClick]);
 
   return (
-  <div className="relative w-full h-screen">
-    <div
-      ref={mapRef}
-      className="w-full h-full rounded-2xl overflow-hidden"
-    />
+    <div className="relative w-full h-screen">
+      <div
+        ref={mapRef}
+        className="w-full h-full rounded-2xl overflow-hidden"
+      />
 
-    {loading && (
-      <div className="absolute inset-0 flex items-center justify-center bg-stone-dark/80 backdrop-blur-sm rounded-2xl">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-12 h-12 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-          <p className="text-cream/50 text-sm">Loading map...</p>
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-stone-dark/80 backdrop-blur-sm rounded-2xl">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-12 h-12 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+            <p className="text-cream/50 text-sm">Loading map...</p>
+          </div>
         </div>
-      </div>
-    )}
-  
+      )}
 
       {/* Marker count */}
       {!loading && (
-        <div className="absolute top-4 right-4 glass rounded-xl px-4 py-2 text-sm">
+        <div className="absolute top-4 right-4 glass rounded-xl px-4 py-2 text-sm z-[1000]">
           <span className="text-gold font-mono">{markersLayer.current?.getLayers().length || 0}</span>
           <span className="text-cream/50 ml-2">markers</span>
         </div>
@@ -200,6 +201,12 @@ if (layers.length > 0) {
 
       {/* Custom popup styles */}
       <style>{`
+        /* Darken the OSM tiles to match the site theme.
+           Markers are unaffected because they sit in a separate pane. */
+        .map-tiles-dark {
+          filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6);
+        }
+
         .custom-popup .leaflet-popup-content-wrapper {
           background: linear-gradient(135deg, rgba(42,35,24,0.95), rgba(26,22,15,0.95));
           backdrop-filter: blur(20px);
