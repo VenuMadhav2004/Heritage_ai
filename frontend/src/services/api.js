@@ -1,6 +1,9 @@
 // services/api.js — connects to Tamil Nadu Heritage FastAPI backend
 const BASE = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
+// Static files (images, audio) are served from the server root, not under /api/v1
+const STATIC_BASE = BASE.replace(/\/api\/v1\/?$/, "");
+
 async function req(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, {
     headers: { "Content-Type": "application/json", ...options.headers },
@@ -65,28 +68,39 @@ export const api = {
   getGeoCoverage: () => req(`/analytics/geographic-coverage`),
 
   // ── TTS ───────────────────────────────────────────────────────────────────
-  // GET /tts/languages
- // ── TTS ───────────────────────────────────────────────────────────────────
+  // GET /tts/status
+  getTTSStatus: () => req(`/tts/status`),
 
-// GET /tts/status
-getTTSStatus: () => req(`/tts/status`),
+  // POST /tts/generate/{id}?lang=en
+  generateVoice: (id, lang = "en") =>
+    req(`/tts/generate/${id}?lang=${lang}`, { method: "POST" }),
 
-// POST /tts/generate/{id}?lang=en
-generateVoice: (id, lang = "en") =>
-  req(`/tts/generate/${id}?lang=${lang}`, { method: "POST" }),
+  // Optional fallback play URL (not needed if using full_url)
+  getPlayUrl: (id, lang = "en") =>
+    `${BASE}/tts/play/${id}?lang=${lang}`,
 
-// Optional fallback play URL (not needed if using full_url)
-getPlayUrl: (id, lang = "en") =>
-  `${BASE}/tts/play/${id}?lang=${lang}`,
   // ── Upload ────────────────────────────────────────────────────────────────
   getMissingImages: () => req(`/upload/images/missing`),
 
   // ── System ────────────────────────────────────────────────────────────────
   getHealth: () => req(`/health`, { headers: {} }),  // no prefix needed but ok
 
+  // ── Static asset helpers ──────────────────────────────────────────────────
   // Image URL helper — filename stored in DB → full static URL
   imageUrl: (filename) =>
-    filename ? `http://localhost:8000/static/images/${filename}` : null,
+    filename ? `${STATIC_BASE}/static/images/${filename}` : null,
+
+  // Audio URL helper — accepts either a bare filename or a server path
+  // like "/static/audio/foo.mp3" (as returned by the TTS endpoints).
+  audioUrl: (pathOrFilename) => {
+    if (!pathOrFilename) return null;
+    if (/^https?:\/\//i.test(pathOrFilename)) return pathOrFilename;
+    if (pathOrFilename.startsWith("/")) return `${STATIC_BASE}${pathOrFilename}`;
+    return `${STATIC_BASE}/static/audio/${pathOrFilename}`;
+  },
+
+  // Exposed for components that need to build their own static URLs
+  staticBase: STATIC_BASE,
 };
 
 export default api;
