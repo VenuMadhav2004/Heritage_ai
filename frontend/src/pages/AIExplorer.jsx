@@ -3,6 +3,10 @@ import { useState, useRef, useEffect } from "react";
 import { MainLayout } from "../layout/MainLayout.jsx";
 import api from "../services/api.js";
 
+// API endpoints — read from environment, fall back to localhost for dev
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+const API_BASE = API_URL.replace("/api/v1", "");
+
 const SUGGESTIONS = [
   { id: 1, icon: "🏛️", text: "Tell me about Brihadeeswarar Temple" },
   { id: 2, icon: "⚔️", text: "Explain the Chola dynasty's legacy" },
@@ -135,7 +139,7 @@ export function AIExplorer() {
         formData.append("message", text.trim() || "What is this temple? Describe it in detail.");
         formData.append("image", image);
         
-        const res = await fetch("http://localhost:8000/api/v1/ai/chat/vision", {
+        const res = await fetch(`${API_URL}/ai/chat/vision`, {
           method: "POST",
           body: formData,
         });
@@ -145,7 +149,7 @@ export function AIExplorer() {
         // Text-only request
         const history = messages.map((m) => ({ role: m.role, content: m.content }));
         
-        const res = await fetch("http://localhost:8000/api/v1/ai/chat", {
+        const res = await fetch(`${API_URL}/ai/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -195,7 +199,7 @@ export function AIExplorer() {
         setAudioPlaying(null);
       }
 
-      const res = await fetch("http://localhost:8000/api/v1/ai/tts", {
+      const res = await fetch(`${API_URL}/ai/tts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, language: lang }),
@@ -203,7 +207,7 @@ export function AIExplorer() {
       const data = await res.json();
 
       if (data.success) {
-        const audioUrl = `http://localhost:8000${data.audio_url}`;
+        const audioUrl = `${API_BASE}${data.audio_url}`;
         const audio = new Audio(audioUrl);
         audioRef.current = audio;
         setAudioPlaying(lang);
